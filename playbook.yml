@@ -1,16 +1,33 @@
 ---
+
 - hosts: all
   become: true
   pre_tasks:
 
-  - name: update repository index (CentOS)
-    tags: always
-    dnf:
-      update_cache: yes
-    changed_when: false
+  - name: epel-release download
+    yum:
+      name:
+        - epel-release
     when: ansible_distribution == "CentOS"
 
-- hosts: elastic_search
+  - name: Remote CentOS server Update and Upgrade
+    yum:
+      update_cache: yes
+      update_only: yes
+    when: ansible_distribution == "CentOS"
+
+  - name: Ubuntu server Update and Upgrade
+    apt:
+      update_cache: yes
+      upgrade: dist
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: Ubuntu
   become: true
   roles:
-    - elastic_search
+    - role: Ubuntu
+
+- hosts: CentOS
+  become: true
+  roles:
+    - role: CentOS
